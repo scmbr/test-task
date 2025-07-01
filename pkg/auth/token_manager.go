@@ -11,13 +11,13 @@ import (
 )
 
 type TokenManager interface {
-	NewJWT(role, userId string, ttl time.Duration) (string, error)
+	NewJWT(userGUID string, ttl time.Duration) (string, error)
 	Parse(accessToken string) (*Claims, error)
 	NewRefreshToken() (string, error)
 }
 type Claims struct {
-	UserID string `json:"sub"`
-	Role   string `json:"role"`
+	UserGUID string `json:"user_guid"`
+
 	jwt.RegisteredClaims
 }
 type Manager struct {
@@ -32,13 +32,11 @@ func NewManager(signingKey string) (*Manager, error) {
 	return &Manager{signingKey: signingKey}, nil
 }
 
-func (m *Manager) NewJWT(role, userId string, ttl time.Duration) (string, error) {
+func (m *Manager) NewJWT(userGUID string, ttl time.Duration) (string, error) {
 	claims := Claims{
-		UserID: userId,
-		Role:   role,
+		UserGUID: userGUID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl)),
-			Subject:   userId,
 		},
 	}
 
