@@ -12,6 +12,7 @@ type (
 		HTTP     HTTPConfig
 		Postgres PostgresConfig
 		Hasher   HasherConfig
+		Auth     AuthConfig
 	}
 	HTTPConfig struct {
 		Host               string
@@ -30,6 +31,11 @@ type (
 	}
 	HasherConfig struct {
 		Cost int `mapstructure:"cost"`
+	}
+	AuthConfig struct {
+		SigningKey      string
+		AccessTokenTTL  time.Duration `mapstructure:"accessTokenTTL"`
+		RefreshTokenTTL time.Duration `mapstructure:"refreshTokenTTL"`
 	}
 )
 
@@ -60,9 +66,13 @@ func unmarshal(cfg *Config) error {
 	if err := viper.UnmarshalKey("hasher", &cfg.Hasher); err != nil {
 		return err
 	}
+	if err := viper.UnmarshalKey("auth", &cfg.Auth); err != nil {
+		return err
+	}
 	return nil
 }
 func setFromEnv(cfg *Config) {
 	cfg.HTTP.Host = os.Getenv("HTTP_HOST")
 	cfg.Postgres.Password = os.Getenv("POSTGRES_PASSWORD")
+	cfg.Auth.SigningKey = os.Getenv("SIGNING_KEY")
 }
