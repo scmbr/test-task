@@ -9,3 +9,5 @@ postgres:
   port: "5436"
   dbname: "postgres"
   sslmode: "disable"
+hasher:
+  cost: 10

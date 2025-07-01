@@ -11,6 +11,7 @@ type (
 	Config struct {
 		HTTP     HTTPConfig
 		Postgres PostgresConfig
+		Hasher   HasherConfig
 	}
 	HTTPConfig struct {
 		Host               string
@@ -26,6 +27,9 @@ type (
 		Name     string `mapstructure:"dbname"`
 		SSLMode  string `mapstructure:"sslmode"`
 		Password string
+	}
+	HasherConfig struct {
+		Cost int `mapstructure:"cost"`
 	}
 )
 
@@ -53,7 +57,9 @@ func unmarshal(cfg *Config) error {
 	if err := viper.UnmarshalKey("postgres", &cfg.Postgres); err != nil {
 		return err
 	}
-
+	if err := viper.UnmarshalKey("hasher", &cfg.Hasher); err != nil {
+		return err
+	}
 	return nil
 }
 func setFromEnv(cfg *Config) {
