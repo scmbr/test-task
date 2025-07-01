@@ -14,10 +14,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		auth := api.Group("/auth")
 		{
-			auth.GET("/token")
-			auth.GET("/user")
-			auth.POST("/refresh")
-			auth.POST("/logout")
+			auth.GET("/user", h.getGUID)
+			auth.POST("/token", h.generateTokens)
+			auth.POST("/refresh", h.refreshTokens)
+			auth.POST("/logout", h.logOut)
 		}
 	}
 	return router
