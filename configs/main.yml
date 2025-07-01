@@ -11,3 +11,6 @@ postgres:
   sslmode: "disable"
 hasher:
   cost: 10
+auth:
+  accessTokenTTL: 15m
+  refreshTokenTTL: 720h
