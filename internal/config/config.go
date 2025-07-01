@@ -9,7 +9,8 @@ import (
 
 type (
 	Config struct {
-		HTTP HTTPConfig
+		HTTP     HTTPConfig
+		Postgres PostgresConfig
 	}
 	HTTPConfig struct {
 		Host               string
@@ -17,6 +18,14 @@ type (
 		ReadTimeout        time.Duration `mapstructure:"readTimeout"`
 		WriteTimeout       time.Duration `mapstructure:"writeTimeout"`
 		MaxHeaderMegabytes int           `mapstructure:"maxHeaderBytes"`
+	}
+	PostgresConfig struct {
+		Username string `mapstructure:"username"`
+		Host     string `mapstructure:"host"`
+		Port     string `mapstructure:"port"`
+		Name     string `mapstructure:"dbname"`
+		SSLMode  string `mapstructure:"sslmode"`
+		Password string
 	}
 )
 
@@ -41,8 +50,13 @@ func unmarshal(cfg *Config) error {
 	if err := viper.UnmarshalKey("http", &cfg.HTTP); err != nil {
 		return err
 	}
+	if err := viper.UnmarshalKey("postgres", &cfg.Postgres); err != nil {
+		return err
+	}
+
 	return nil
 }
 func setFromEnv(cfg *Config) {
 	cfg.HTTP.Host = os.Getenv("HTTP_HOST")
+	cfg.Postgres.Password = os.Getenv("POSTGRES_PASSWORD")
 }
