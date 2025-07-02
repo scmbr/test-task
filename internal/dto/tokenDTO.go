@@ -9,4 +9,5 @@ type GenerateTokensRequest struct {
 }
 type RefreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
+	AccessToken  string `json:"access_token" binding:"required"`
 }
