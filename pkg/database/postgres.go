@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 
+	"github.com/scmbr/test-task/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -24,6 +25,6 @@ func NewPostgresDB(cfg Config) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	db.AutoMigrate(&models.RefreshToken{})
 	return db, nil
 }
