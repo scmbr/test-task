@@ -7,3 +7,6 @@ type TokensResponse struct {
 type GenerateTokensRequest struct {
 	GUID string `json:"guid" binding:"required,uuid"`
 }
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}
