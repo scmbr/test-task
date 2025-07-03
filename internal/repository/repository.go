@@ -3,11 +3,13 @@ package repository
 import (
 	"time"
 
+	"github.com/scmbr/test-task/internal/models"
 	"gorm.io/gorm"
 )
 
 type RefreshToken interface {
 	SaveRefreshToken(guid, hashedToken, userAgent, ip string, refreshTokenTTL time.Duration) error
+	ValidateRefreshToken(refreshTokenHash string) (*models.RefreshToken, error)
 }
 
 type Repository struct {
