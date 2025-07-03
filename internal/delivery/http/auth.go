@@ -31,12 +31,28 @@ func (h *Handler) generateTokens(c *gin.Context) {
 		RefreshToken: refreshToken,
 	})
 }
+func (h *Handler) refreshTokens(c *gin.Context) {
+	var req dto.RefreshTokenRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userAgent := c.GetHeader("User-Agent")
+	clientIP := c.ClientIP()
+
+	newTokens, err := h.service.RefreshTokenPair(req.AccessToken, req.RefreshToken, userAgent, clientIP)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to refresh token pair"})
+		return
+	}
+
+	c.JSON(http.StatusOK, newTokens)
+}
 func (h *Handler) getCurrentUserGUID(c *gin.Context) {
 	c.JSON(http.StatusOK, "todo")
 }
-func (h *Handler) refreshTokens(c *gin.Context) {
-	c.JSON(http.StatusOK, "todo")
-}
+
 func (h *Handler) logOut(c *gin.Context) {
 	c.JSON(http.StatusOK, "todo")
 }
