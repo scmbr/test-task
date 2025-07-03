@@ -13,6 +13,7 @@ type (
 		Postgres PostgresConfig
 		Hasher   HasherConfig
 		Auth     AuthConfig
+		Webhook  WebhookConfig
 	}
 	HTTPConfig struct {
 		Host               string
@@ -20,6 +21,9 @@ type (
 		ReadTimeout        time.Duration `mapstructure:"readTimeout"`
 		WriteTimeout       time.Duration `mapstructure:"writeTimeout"`
 		MaxHeaderMegabytes int           `mapstructure:"maxHeaderBytes"`
+	}
+	WebhookConfig struct {
+		WebhookUrl string
 	}
 	PostgresConfig struct {
 		Username string `mapstructure:"username"`
@@ -75,4 +79,5 @@ func setFromEnv(cfg *Config) {
 	cfg.HTTP.Host = os.Getenv("HTTP_HOST")
 	cfg.Postgres.Password = os.Getenv("POSTGRES_PASSWORD")
 	cfg.Auth.SigningKey = os.Getenv("SIGNING_KEY")
+	cfg.Webhook.WebhookUrl = os.Getenv("WEBHOOK_URL")
 }
