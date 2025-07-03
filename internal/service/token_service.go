@@ -26,20 +26,20 @@ func NewTokenService(repo repository.RefreshToken, hasher hasher.Hasher, accessT
 	}
 }
 
-func (r *TokenService) GenerateAccessToken(GUID string) (string, error) {
-	accessToken, err := r.tokenManager.NewJWT(GUID, r.accessTokenTTL)
+func (s *TokenService) GenerateAccessToken(GUID string) (string, error) {
+	accessToken, err := s.tokenManager.NewJWT(GUID, s.accessTokenTTL)
 	return accessToken, err
 }
-func (r *TokenService) GenerateAndSaveRefreshToken(guid, userAgent, ip string) (string, error) {
-	rawToken, err := r.tokenManager.NewRefreshToken()
+func (s *TokenService) GenerateAndSaveRefreshToken(guid, userAgent, ip string) (string, error) {
+	rawToken, err := s.tokenManager.NewRefreshToken()
 	if err != nil {
 		return "", err
 	}
-	hashedToken, err := r.hasher.Hash(rawToken)
+	hashedToken, err := s.hasher.Hash(rawToken)
 	if err != nil {
 		return "", err
 	}
-	if err := r.repo.SaveRefreshToken(guid, hashedToken, userAgent, ip, r.refreshTokenTTL); err != nil {
+	if err := s.repo.SaveRefreshToken(guid, hashedToken, userAgent, ip, s.refreshTokenTTL); err != nil {
 		return "", err
 	}
 	return rawToken, nil
