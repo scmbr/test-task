@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/scmbr/test-task/internal/config"
 	delivery "github.com/scmbr/test-task/internal/delivery/http"
+	"github.com/scmbr/test-task/internal/notifier"
 	"github.com/scmbr/test-task/internal/repository"
 	"github.com/scmbr/test-task/internal/server"
 	"github.com/scmbr/test-task/internal/service"
@@ -36,13 +37,14 @@ func Run(configsDir string) {
 		logrus.Fatalf("error initializing token manager: %s", err.Error())
 		return
 	}
+	ipChangeNotifier := notifier.NewIPNotifier(cfg.Webhook.WebhookUrl)
 	services := service.NewServices(service.Deps{
-		Repos:           repositories,
-		Hasher:          *hasher,
-		TokenManager:    tokenManager,
-		AccessTokenTTL:  cfg.Auth.AccessTokenTTL,
-		RefreshTokenTTL: cfg.Auth.RefreshTokenTTL,
-		WebhookUrl:      cfg.Webhook.WebhookUrl,
+		Repos:            repositories,
+		Hasher:           *hasher,
+		TokenManager:     tokenManager,
+		AccessTokenTTL:   cfg.Auth.AccessTokenTTL,
+		RefreshTokenTTL:  cfg.Auth.RefreshTokenTTL,
+		IPChangeNotifier: *ipChangeNotifier,
 	})
 	srv := new(server.Server)
 	handlers := delivery.NewHandler(services)
