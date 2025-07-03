@@ -3,6 +3,7 @@ package service
 import (
 	"time"
 
+	"github.com/scmbr/test-task/internal/dto"
 	"github.com/scmbr/test-task/internal/repository"
 	"github.com/scmbr/test-task/pkg/auth"
 	"github.com/scmbr/test-task/pkg/hasher"
@@ -11,6 +12,7 @@ import (
 type Token interface {
 	GenerateAccessToken(GUID string) (string, error)
 	GenerateAndSaveRefreshToken(guid, userAgent, ip string) (string, error)
+	RefreshTokenPair(refreshToken, accessToken, userAgent, clientIP string) (*dto.TokensResponse, error)
 }
 type TokenInfo struct {
 	HashedRefresh string
