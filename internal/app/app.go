@@ -42,6 +42,7 @@ func Run(configsDir string) {
 		TokenManager:    tokenManager,
 		AccessTokenTTL:  cfg.Auth.AccessTokenTTL,
 		RefreshTokenTTL: cfg.Auth.RefreshTokenTTL,
+		WebhookUrl:      cfg.Webhook.WebhookUrl,
 	})
 	srv := new(server.Server)
 	handlers := delivery.NewHandler(services)

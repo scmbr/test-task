@@ -26,6 +26,7 @@ type Deps struct {
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
 	TokenManager    auth.TokenManager
+	WebhookUrl      string
 }
 
 func NewServices(deps Deps) *Service {
