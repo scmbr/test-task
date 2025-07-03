@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -28,4 +29,21 @@ func (r *RefreshTokenRepo) SaveRefreshToken(guid, hashedToken, userAgent, ip str
 	}
 
 	return nil
+}
+func (r *RefreshTokenRepo) ValidateRefreshToken(refreshTokenHash string) (*models.RefreshToken, error) {
+	var token models.RefreshToken
+
+	err := r.db.
+		Where("token_hash = ? AND expires_at > ?", refreshTokenHash, time.Now()).
+		First(&token).
+		Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("refresh token not found or expired")
+		}
+		return nil, fmt.Errorf("database error: %w", err)
+	}
+
+	return &token, nil
 }
