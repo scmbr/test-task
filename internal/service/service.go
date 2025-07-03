@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/scmbr/test-task/internal/dto"
+	"github.com/scmbr/test-task/internal/notifier"
 	"github.com/scmbr/test-task/internal/repository"
 	"github.com/scmbr/test-task/pkg/auth"
 	"github.com/scmbr/test-task/pkg/hasher"
@@ -23,16 +24,16 @@ type Service struct {
 	Token
 }
 type Deps struct {
-	Repos           *repository.Repository
-	Hasher          hasher.Hasher
-	AccessTokenTTL  time.Duration
-	RefreshTokenTTL time.Duration
-	TokenManager    auth.TokenManager
-	WebhookUrl      string
+	Repos            *repository.Repository
+	Hasher           hasher.Hasher
+	AccessTokenTTL   time.Duration
+	RefreshTokenTTL  time.Duration
+	TokenManager     auth.TokenManager
+	IPChangeNotifier *notifier.IPNotifier
 }
 
 func NewServices(deps Deps) *Service {
-	tokenService := NewTokenService(deps.Repos.RefreshToken, deps.Hasher, deps.AccessTokenTTL, deps.RefreshTokenTTL, deps.TokenManager)
+	tokenService := NewTokenService(deps.Repos.RefreshToken, deps.Hasher, deps.AccessTokenTTL, deps.RefreshTokenTTL, deps.TokenManager, deps.IPChangeNotifier)
 
 	return &Service{
 		Token: tokenService,

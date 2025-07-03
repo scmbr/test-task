@@ -44,7 +44,7 @@ func Run(configsDir string) {
 		TokenManager:     tokenManager,
 		AccessTokenTTL:   cfg.Auth.AccessTokenTTL,
 		RefreshTokenTTL:  cfg.Auth.RefreshTokenTTL,
-		IPChangeNotifier: *ipChangeNotifier,
+		IPChangeNotifier: ipChangeNotifier,
 	})
 	srv := new(server.Server)
 	handlers := delivery.NewHandler(services)
