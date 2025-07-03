@@ -47,3 +47,16 @@ func (r *RefreshTokenRepo) ValidateRefreshToken(refreshTokenHash string) (*model
 
 	return &token, nil
 }
+func (r *RefreshTokenRepo) DeleteAllUserRefreshTokens(guid string) error {
+	if guid == "" {
+		return errors.New("user GUID cannot be empty")
+	}
+	result := r.db.
+		Where("user_guid = ?", guid).
+		Delete(&models.RefreshToken{})
+
+	if result.Error != nil {
+		return fmt.Errorf("failed to delete user's refresh tokens: %w", result.Error)
+	}
+	return nil
+}
