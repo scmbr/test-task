@@ -14,6 +14,7 @@ type Token interface {
 	GenerateAccessToken(GUID string) (string, error)
 	GenerateAndSaveRefreshToken(guid, userAgent, ip string) (string, error)
 	RefreshTokenPair(refreshToken, accessToken, userAgent, clientIP string) (*dto.TokensResponse, error)
+	Logout(accessToken string) error
 }
 type TokenInfo struct {
 	HashedRefresh string
