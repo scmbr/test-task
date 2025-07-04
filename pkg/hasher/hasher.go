@@ -10,14 +10,11 @@ func NewHasher(cost int) *Hasher {
 	return &Hasher{cost: cost}
 }
 
-func (h *Hasher) Hash(token string) (string, error) {
-	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(token), h.cost)
-	if err != nil {
-		return "", err
-	}
-	return string(hashedBytes), nil
+func (h *Hasher) Hash(data []byte) (string, error) {
+	hashed, err := bcrypt.GenerateFromPassword(data, bcrypt.DefaultCost)
+	return string(hashed), err
 }
-func (h *Hasher) Verify(token, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(token))
+func (h *Hasher) Verify(token []byte, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), token)
 	return err == nil
 }
