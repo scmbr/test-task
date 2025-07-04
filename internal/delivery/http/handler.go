@@ -4,6 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/scmbr/test-task/internal/service"
 	"github.com/scmbr/test-task/pkg/auth"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handler struct {
@@ -16,6 +18,7 @@ func NewHandler(service *service.Service, tokenManager auth.TokenManager) *Handl
 }
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	api := router.Group("/api")
 	{
 		auth := api.Group("/auth")
