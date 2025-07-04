@@ -5,7 +5,10 @@ type TokensResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 type GenerateTokensRequest struct {
-	GUID string `json:"guid" binding:"required,uuid"`
+	UserGUID string `json:"user_guid" binding:"required,uuid"`
+}
+type UserGUIDResponse struct {
+	UserGUID string `json:"user_guid"`
 }
 type RefreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
