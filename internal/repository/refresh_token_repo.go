@@ -82,3 +82,19 @@ func (r *RefreshTokenRepo) DeleteRefreshToken(guid, refreshTokenHash string) err
 
 	return nil
 }
+func (r *RefreshTokenRepo) GetUserRefreshTokens(guid string) ([]*models.RefreshToken, error) {
+	if guid == "" {
+		return nil, errors.New("user GUID cannot be empty")
+	}
+
+	var tokens []*models.RefreshToken
+	result := r.db.
+		Where("user_guid = ?", guid).
+		Find(&tokens)
+
+	if result.Error != nil {
+		return nil, fmt.Errorf("failed to get user's refresh tokens: %w", result.Error)
+	}
+
+	return tokens, nil
+}
