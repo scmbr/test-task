@@ -41,7 +41,7 @@ func (h *Handler) refreshTokens(c *gin.Context) {
 	userAgent := c.GetHeader("User-Agent")
 	clientIP := c.ClientIP()
 
-	newTokens, err := h.service.RefreshTokenPair(req.RefreshToken, req.AccessToken, userAgent, clientIP)
+	newTokens, err := h.service.Token.RefreshTokenPair(req.RefreshToken, req.AccessToken, userAgent, clientIP)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -64,7 +64,6 @@ func (h *Handler) getCurrentUserGUID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"user_guid": guid})
 }
-
 func (h *Handler) logOut(c *gin.Context) {
 	var req dto.LogoutRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
