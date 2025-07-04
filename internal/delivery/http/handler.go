@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/scmbr/test-task/internal/service"
+	"github.com/scmbr/test-task/pkg/auth"
 )
 
 type Handler struct {
@@ -19,7 +20,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		auth := api.Group("/auth")
 		{
-			auth.GET("/user", h.getCurrentUserGUID)
+			auth.GET("/user", h.authMiddleware, h.getCurrentUserGUID)
 			auth.POST("/token", h.generateTokens)
 			auth.POST("/refresh", h.refreshTokens)
 			auth.POST("/logout", h.logOut)
