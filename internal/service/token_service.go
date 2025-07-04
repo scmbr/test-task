@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"time"
@@ -39,20 +40,28 @@ func (s *TokenService) GenerateAccessToken(GUID string) (string, error) {
 	return accessToken, err
 }
 func (s *TokenService) GenerateAndSaveRefreshToken(guid, userAgent, ip string) (string, error) {
-	rawToken, err := s.tokenManager.NewRefreshToken()
+	rawBytes, err := s.tokenManager.NewRefreshToken()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to generate token: %w", err)
 	}
-	hashedToken, err := s.hasher.Hash(rawToken)
+
+	hashedToken, err := s.hasher.Hash(rawBytes)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to hash token: %w", err)
 	}
+
 	if err := s.repo.SaveRefreshToken(guid, hashedToken, userAgent, ip, s.refreshTokenTTL); err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to save token: %w", err)
 	}
-	return rawToken, nil
+	encodedToken := base64.StdEncoding.EncodeToString(rawBytes)
+	return encodedToken, nil
 }
-func (s *TokenService) RefreshTokenPair(refreshToken, accessToken, userAgent, clientIP string) (*dto.TokensResponse, error) {
+func (s *TokenService) RefreshTokenPair(refreshTokenBase64, accessToken, userAgent, clientIP string) (*dto.TokensResponse, error) {
+	decodedRefresh, err := base64.StdEncoding.DecodeString(refreshTokenBase64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid base64 token: %w", err)
+	}
+
 	accessClaims, err := s.tokenManager.Parse(accessToken)
 	if err != nil {
 		return nil, fmt.Errorf("invalid access token: %w", err)
@@ -65,7 +74,7 @@ func (s *TokenService) RefreshTokenPair(refreshToken, accessToken, userAgent, cl
 
 	var matchedToken *models.RefreshToken
 	for _, token := range userTokens {
-		if s.hasher.Verify(refreshToken, token.TokenHash) {
+		if s.hasher.Verify(decodedRefresh, token.TokenHash) {
 			matchedToken = token
 			break
 		}
@@ -94,24 +103,29 @@ func (s *TokenService) RefreshTokenPair(refreshToken, accessToken, userAgent, cl
 		return nil, fmt.Errorf("failed to generate access token: %w", err)
 	}
 
-	newRefresh, err := s.tokenManager.NewRefreshToken()
+	newRefreshRaw, err := s.tokenManager.NewRefreshToken()
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate refresh token: %w", err)
 	}
-	hashedToken, err := s.hasher.Hash(newRefresh)
+
+	hashedToken, err := s.hasher.Hash(newRefreshRaw)
 	if err != nil {
-		return &dto.TokensResponse{}, err
+		return nil, fmt.Errorf("failed to hash token: %w", err)
 	}
+
 	if err := s.repo.SaveRefreshToken(accessClaims.UserGUID, hashedToken, userAgent, clientIP, s.refreshTokenTTL); err != nil {
-		return &dto.TokensResponse{}, err
+		return nil, fmt.Errorf("failed to save refresh token: %w", err)
 	}
+
 	if err := s.repo.DeleteRefreshToken(matchedToken.UserGUID, matchedToken.TokenHash); err != nil {
 		logrus.Errorf("failed to delete old refresh token: %v", err)
 	}
 
+	newRefreshBase64 := base64.StdEncoding.EncodeToString(newRefreshRaw)
+
 	return &dto.TokensResponse{
 		AccessToken:  newAccess,
-		RefreshToken: newRefresh,
+		RefreshToken: newRefreshBase64,
 	}, nil
 }
 func (s *TokenService) Logout(accessToken string) error {
