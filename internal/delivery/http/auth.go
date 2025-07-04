@@ -10,19 +10,19 @@ import (
 func (h *Handler) generateTokens(c *gin.Context) {
 	var req dto.GenerateTokensRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	accessToken, err := h.service.Token.GenerateAccessToken(req.GUID)
+	accessToken, err := h.service.Token.GenerateAccessToken(req.UserGUID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate access token"})
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	refreshToken, err := h.service.Token.GenerateAndSaveRefreshToken(req.GUID, c.GetHeader("User-Agent"), c.ClientIP())
+	refreshToken, err := h.service.Token.GenerateAndSaveRefreshToken(req.UserGUID, c.GetHeader("User-Agent"), c.ClientIP())
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate and save refresh token"})
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: err.Error()})
 		return
 	}
 
@@ -34,7 +34,7 @@ func (h *Handler) generateTokens(c *gin.Context) {
 func (h *Handler) refreshTokens(c *gin.Context) {
 	var req dto.RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: err.Error()})
 		return
 	}
 
@@ -43,38 +43,39 @@ func (h *Handler) refreshTokens(c *gin.Context) {
 
 	newTokens, err := h.service.Token.RefreshTokenPair(req.RefreshToken, req.AccessToken, userAgent, clientIP)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, newTokens)
+	c.JSON(http.StatusOK, dto.TokensResponse{AccessToken: newTokens.AccessToken, RefreshToken: newTokens.RefreshToken})
 }
 func (h *Handler) getCurrentUserGUID(c *gin.Context) {
 	userGUID, exists := c.Get("userGuid")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "user not authorized"})
+		c.JSON(http.StatusUnauthorized, dto.ErrorResponse{Error: "user not authorized"})
 		return
 	}
 
-	guid, ok := userGUID.(string)
-	if !ok || guid == "" {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid user data"})
+	userGuid, ok := userGUID.(string)
+	if !ok || userGuid == "" {
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "invalid user data"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user_guid": guid})
+	c.JSON(http.StatusOK, dto.UserGUIDResponse{UserGUID: userGuid})
 }
 func (h *Handler) logOut(c *gin.Context) {
 	var req dto.LogoutRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: "invalid request body"})
 		return
 	}
 
 	if err := h.service.Logout(req.AccessToken); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "logout failed"})
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "succesfully logged out"})
+	c.JSON(http.StatusOK, dto.MessageResponse{Message: "succesfully logged out"})
+
 }
