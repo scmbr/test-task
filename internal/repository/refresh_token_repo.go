@@ -61,15 +61,24 @@ func (r *RefreshTokenRepo) DeleteAllUserRefreshTokens(guid string) error {
 	return nil
 }
 func (r *RefreshTokenRepo) DeleteRefreshToken(guid, refreshTokenHash string) error {
+	if guid == "" {
+		return errors.New("user GUID cannot be empty")
+	}
 	if refreshTokenHash == "" {
 		return errors.New("refresh token hash cannot be empty")
 	}
+
 	result := r.db.
-		Where("token_hash = ?", refreshTokenHash).
+		Where("user_guid = ? AND token_hash = ?", guid, refreshTokenHash).
 		Delete(&models.RefreshToken{})
 
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete refresh token: %w", result.Error)
 	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("no matching token found for deletion")
+	}
+
 	return nil
 }
