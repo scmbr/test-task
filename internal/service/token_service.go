@@ -114,3 +114,17 @@ func (s *TokenService) RefreshTokenPair(refreshToken, accessToken, userAgent, cl
 		RefreshToken: newRefresh,
 	}, nil
 }
+func (s *TokenService) Logout(accessToken string) error {
+	if accessToken == "" {
+		return errors.New("empty access token")
+	}
+	accessClaims, err := s.tokenManager.Parse(accessToken)
+	if err != nil {
+		return fmt.Errorf("invalid access token: %w", err)
+	}
+	err = s.repo.DeleteAllUserRefreshTokens(accessClaims.UserGUID)
+	if err != nil {
+		return fmt.Errorf("failed to delete user's refresh tokens: %w", err)
+	}
+	return nil
+}
