@@ -9,9 +9,10 @@ import (
 
 type RefreshToken interface {
 	SaveRefreshToken(guid, hashedToken, userAgent, ip string, refreshTokenTTL time.Duration) error
-	ValidateRefreshToken(refreshTokenHash string) (*models.RefreshToken, error)
+	ValidateRefreshToken(guid, refreshTokenHash string) (*models.RefreshToken, error)
 	DeleteAllUserRefreshTokens(guid string) error
-	DeleteRefreshToken(refreshTokenHash string) error
+	DeleteRefreshToken(guid, refreshTokenHash string) error
+	GetUserRefreshTokens(guid string) ([]*models.RefreshToken, error)
 }
 
 type Repository struct {
