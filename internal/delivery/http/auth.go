@@ -50,7 +50,19 @@ func (h *Handler) refreshTokens(c *gin.Context) {
 	c.JSON(http.StatusOK, newTokens)
 }
 func (h *Handler) getCurrentUserGUID(c *gin.Context) {
-	c.JSON(http.StatusOK, "todo")
+	userGUID, exists := c.Get("userGuid")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "user not authorized"})
+		return
+	}
+
+	guid, ok := userGUID.(string)
+	if !ok || guid == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid user data"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user_guid": guid})
 }
 
 func (h *Handler) logOut(c *gin.Context) {
