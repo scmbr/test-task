@@ -47,7 +47,7 @@ func Run(configsDir string) {
 		IPChangeNotifier: ipChangeNotifier,
 	})
 	srv := new(server.Server)
-	handlers := delivery.NewHandler(services)
+	handlers := delivery.NewHandler(services, tokenManager)
 	if err := srv.Run(cfg.HTTP.Port, cfg.HTTP.Host, handlers.InitRoutes()); err != nil {
 		logrus.Fatalf("error occurred while starting http server: %s", err.Error())
 	}

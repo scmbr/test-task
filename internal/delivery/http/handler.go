@@ -6,11 +6,12 @@ import (
 )
 
 type Handler struct {
-	service *service.Service
+	service      *service.Service
+	tokenManager auth.TokenManager
 }
 
-func NewHandler(service *service.Service) *Handler {
-	return &Handler{service: service}
+func NewHandler(service *service.Service, tokenManager auth.TokenManager) *Handler {
+	return &Handler{service: service, tokenManager: tokenManager}
 }
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
