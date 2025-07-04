@@ -1,0 +1,175 @@
+basePath: /
+definitions:
+  dto.ErrorResponse:
+    properties:
+      error:
+        example: Invalid input data
+        type: string
+    type: object
+  dto.GenerateTokensRequest:
+    properties:
+      user_guid:
+        type: string
+    required:
+    - user_guid
+    type: object
+  dto.LogoutRequest:
+    properties:
+      access_token:
+        type: string
+    required:
+    - access_token
+    type: object
+  dto.MessageResponse:
+    properties:
+      message:
+        example: succesfully logged out
+        type: string
+    type: object
+  dto.RefreshTokenRequest:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    required:
+    - access_token
+    - refresh_token
+    type: object
+  dto.TokensResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  dto.UserGUIDResponse:
+    properties:
+      user_guid:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Реализация тестового задания medods
+  title: Authorization API test task
+  version: "1.0"
+paths:
+  /api/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Удаляет все refresh-токены пользователя
+      parameters:
+      - description: Access Token
+        in: body
+        name: access_token
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LogoutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Выход из системы
+      tags:
+      - Auth
+  /api/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Обновляет access и refresh токены парой токенов, которая была выдана
+        вместе
+      parameters:
+      - description: Tokens
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TokensResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Обновление пары токенов
+      tags:
+      - Auth
+  /api/auth/token:
+    post:
+      consumes:
+      - application/json
+      description: Создает access и refresh токены для указанного пользователя
+      parameters:
+      - description: User GUID
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GenerateTokensRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TokensResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Генерация пары токенов
+      tags:
+      - Auth
+  /api/auth/user:
+    get:
+      description: Возвращает GUID авторизованного пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserGUIDResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение GUID текущего пользователя
+      tags:
+      - User
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
