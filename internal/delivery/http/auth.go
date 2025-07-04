@@ -66,5 +66,16 @@ func (h *Handler) getCurrentUserGUID(c *gin.Context) {
 }
 
 func (h *Handler) logOut(c *gin.Context) {
-	c.JSON(http.StatusOK, "todo")
+	var req dto.LogoutRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		return
+	}
+
+	if err := h.service.Logout(req.AccessToken); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "logout failed"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "succesfully logged out"})
 }
