@@ -30,7 +30,7 @@ func (r *RefreshTokenRepo) SaveRefreshToken(guid, hashedToken, userAgent, ip str
 
 	return nil
 }
-func (r *RefreshTokenRepo) ValidateRefreshToken(refreshTokenHash string) (*models.RefreshToken, error) {
+func (r *RefreshTokenRepo) ValidateRefreshToken(guid, refreshTokenHash string) (*models.RefreshToken, error) {
 	var token models.RefreshToken
 
 	err := r.db.
@@ -60,7 +60,7 @@ func (r *RefreshTokenRepo) DeleteAllUserRefreshTokens(guid string) error {
 	}
 	return nil
 }
-func (r *RefreshTokenRepo) DeleteRefreshToken(refreshTokenHash string) error {
+func (r *RefreshTokenRepo) DeleteRefreshToken(guid, refreshTokenHash string) error {
 	if refreshTokenHash == "" {
 		return errors.New("refresh token hash cannot be empty")
 	}
