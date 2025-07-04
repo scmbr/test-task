@@ -2,7 +2,6 @@ package auth
 
 import (
 	"crypto/rand"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"time"
@@ -13,7 +12,7 @@ import (
 type TokenManager interface {
 	NewJWT(userGUID string, ttl time.Duration) (string, error)
 	Parse(accessToken string) (*Claims, error)
-	NewRefreshToken() (string, error)
+	NewRefreshToken() ([]byte, error)
 }
 type Claims struct {
 	UserGUID string `json:"user_guid"`
@@ -63,10 +62,10 @@ func (m *Manager) Parse(accessToken string) (*Claims, error) {
 	return claims, nil
 }
 
-func (m *Manager) NewRefreshToken() (string, error) {
+func (m *Manager) NewRefreshToken() ([]byte, error) {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
-		return "", err
+		return nil, err
 	}
-	return base64.StdEncoding.EncodeToString(b), nil
+	return b, nil
 }
