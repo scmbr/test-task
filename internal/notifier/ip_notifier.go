@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/scmbr/test-task/internal/dto"
+	"github.com/sirupsen/logrus"
 )
 
 type IPNotifier struct {
@@ -36,7 +37,13 @@ func (n *IPNotifier) NotifyChange(userGUID, oldIP, newIP string) error {
 	if err != nil {
 		return fmt.Errorf("failed to marshal notification payload: %w", err)
 	}
-
+	logrus.WithFields(logrus.Fields{
+		"userGUID": userGUID,
+		"oldIP":    oldIP,
+		"newIP":    newIP,
+		"time":     payload.Time,
+		"payload":  string(jsonData),
+	}).Info("Sending IP change notification")
 	req, err := http.NewRequest(
 		http.MethodPost,
 		n.webhookURL,
